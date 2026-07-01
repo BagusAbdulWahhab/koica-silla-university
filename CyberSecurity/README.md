@@ -1,4 +1,4 @@
-# KOICA - Silla University Network Simulation Lab
+# KOICA - Cyber Network Simulation Lab
 
 A Python-based simulation of a Local Area Network (LAN) that demonstrates layer 2 networking concepts (MAC addressing, switching, ARP resolution), Layer 7 protocols (DNS, TLS, HTTP), and common cybersecurity vulnerabilities, specifically **Man-in-the-Middle (MitM) via ARP Cache Poisoning** and **DNS Poisoning**.
 
