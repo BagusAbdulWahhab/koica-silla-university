@@ -1,183 +1,270 @@
-# JejakKarbonmu - Carbon Footprint Management System
+# JejakKarbonmu
 
-[![Laravel Version](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
-[![PHP Version](https://img.shields.io/badge/PHP-%5E8.2-blue.svg)](https://php.net)
-[![Database](https://img.shields.io/badge/Database-MySQL-blue.svg)](https://www.mysql.com)
-[![Visualization](https://img.shields.io/badge/Analytics-Tableau-orange.svg)](https://www.tableau.com)
+> **Carbon Footprint Management & Greenhouse Gas (GHG) Accounting
+> System**
 
-**JejakKarbonmu** is a Greenhouse Gas (GHG) emission accounting and calculation web application built with **Laravel 12**, **Bootstrap 5**, and **MySQL**. 
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![MySQL](https://img.shields.io/badge/Database-MySQL-blue.svg)](https://www.mysql.com)
+[![Tableau](https://img.shields.io/badge/Visualization-Tableau-orange.svg)](https://www.tableau.com)
 
-This system is specifically engineered to serve as a high-fidelity carbon calculation and historical data collection engine. It is designed to act as the primary data source for **Tableau**, enabling organizations to build interactive visualization dashboards, analyze emission trends, trigger red-flag anomaly alerts, and gain business insights.
+------------------------------------------------------------------------
 
----
+## Overview
 
-## 📊 System Architecture & Data Flow
+**JejakKarbonmu** is a web-based Greenhouse Gas (GHG) accounting system
+developed as part of the **KOICA -- Digital Carbon 
+Management Capstone Project**.
 
-The application isolates the user inputs and calculation logic from the visualization layer. Rather than rendering complex dashboards inside the PHP application, it acts as a transactional data warehouse. Tableau connects directly to the MySQL database to drive reports.
+The system records emission-producing activities, calculates carbon
+emissions, stores historical records, and integrates directly with
+Tableau for sustainability analytics and reporting.
 
-```mermaid
+------------------------------------------------------------------------
+
+## Background
+
+Organizations increasingly require digital tools capable of recording
+emission activities, applying standardized carbon accounting
+methodologies, maintaining historical records, and supporting
+data-driven sustainability decisions.
+
+JejakKarbonmu combines carbon accounting, relational databases, and
+business intelligence into a single workflow.
+
+------------------------------------------------------------------------
+
+## Key Features
+
+-   Carbon footprint calculation for Scope 1, Scope 2, and Scope 3.
+-   Configurable emission factor management.
+-   Historical emission records.
+-   Category-based emission tracking.
+-   Direct Tableau integration.
+-   Relational database with transactional integrity.
+
+------------------------------------------------------------------------
+
+## Emission Factor Standards
+
+The calculation engine follows internationally recognized carbon
+accounting references.
+
+The current implementation primarily adopts the **GHG Protocol Corporate
+Accounting and Reporting Standard** for emission classification (Scope
+1, Scope 2, and Scope 3).
+
+Emission factors are referenced from recognized sources, including:
+
+-   **GHG Protocol** -- Carbon accounting framework and emission
+    classification.
+-   **IPCC Guidelines for National Greenhouse Gas Inventories** --
+    Emission calculation methodology and reference factors.
+-   **Indonesia National Emission Factors (where applicable)** --
+    Country-specific emission factors such as electricity grid
+    emissions.
+
+The system stores emission factors in the database, allowing future
+updates or additional standards without modifying the calculation
+engine.
+
+------------------------------------------------------------------------
+
+## System Architecture
+
+``` mermaid
 graph TD
-    User([User Input]) -->|Web Interface| LaravelApp[Laravel Web App]
-    LaravelApp -->|EmissionCalculationService| CalEngine[Carbon Accounting Engine]
-    CalEngine -->|Store calculated results| MySQL[(MySQL Database: jejakkarbonmu_db)]
-    MySQL -->|Direct Data Connection| Tableau[Tableau Dashboard & Analytics]
-    Tableau -->|Visual Analytics| Insights[KPIs, Trend Charts, Red Flags]
+A[User] --> B[Laravel Web Application]
+B --> C[Emission Calculation Service]
+C --> D[(MySQL Database)]
+D --> E[Tableau Dashboard]
 ```
 
----
+Laravel handles data collection, validation, and emission calculations,
+while Tableau connects directly to MySQL for visualization and business
+analytics.
 
-## 🛠️ Technology Stack
+------------------------------------------------------------------------
 
-- **Backend Framework:** Laravel 12 (Model-View-Controller)
-- **Programming Language:** PHP 8.2+
-- **Frontend Framework:** Blade Templates & Bootstrap 5 (Responsive Layout)
-- **Database:** MySQL 8.x
-- **Data Visualization Layer:** Tableau (Direct MySQL Connection)
+## Calculation Workflow
 
----
+``` text
+User Activity
+      ↓
+Select Emission Standard
+      ↓
+Retrieve Emission Factor
+      ↓
+Calculate Emissions
+      ↓
+Store Activity Details
+      ↓
+Aggregate Scope Totals
+      ↓
+Store Historical Records
+      ↓
+Tableau Dashboard
+```
 
-## 🌟 Key Features
+------------------------------------------------------------------------
 
-1. **Multi-Standard Emission Factor System:**
-   - Supports switching between multiple standards (e.g., **GHG Protocol**, **IPCC**, and **Indonesia National Standard**).
-   - The selected standard dynamically applies the appropriate emission factors loaded from the database.
+## Technology Stack
 
-2. **Categorized Carbon Accounting (GHG Protocol):**
-   - **Scope 1 (Direct Emissions):** Tracks Diesel, Petrol, LPG, Natural Gas, and Refrigerant.
-   - **Scope 2 (Indirect Emissions):** Tracks Purchased Electricity and Purchased Steam.
-   - **Scope 3 (Indirect Value Chain):** Features a flexible selector allowing users to dynamically choose which categories to input (e.g., Business Travel, Commuting, Waste, Water, etc.).
+  Component       Technology
+  --------------- ---------------------
+  Backend         Laravel 12
+  Language        PHP 8.2
+  Frontend        Blade & Bootstrap 5
+  Database        MySQL
+  Visualization   Tableau
+  Architecture    MVC
 
-3. **Tableau-Ready Seeding Engine:**
-   - Includes a custom database seeder (`EmissionRecordSeeder`) that populates 12 months of realistic historical data (Jan 2024 - Dec 2024).
-   - Designed with realistic monthly fluctuations, a **production spike in July 2024** (to test red-flag analytics), and a **high Scope 2 period in October 2024** (Scope 2 > 85% of total) to validate dashboards.
+------------------------------------------------------------------------
 
-4. **Lifecycle Management:**
-   - Full historical records view with detailed scope breakdowns.
-   - Secure record removal with automated database-level cascade deletions.
+## Database Overview
 
----
+  ----------------------------------------------------------------------------
+  Table                       Description
+  --------------------------- ------------------------------------------------
+  `emission_standards`        Stores supported emission accounting standards.
 
-## 💾 Database Schema
+  `emission_factors`          Stores emission factors used during
+                              calculations.
 
-The database model is optimized for transactional logging and relational integrity:
+  `emission_records`          Stores emission summaries for each reporting
+                              period.
 
-### 1. `emission_standards`
-Stores the supported carbon standards.
-- `id` (PK)
-- `name` (e.g., "GHG Protocol", "IPCC")
-- `description`, `reference_source`, `publication_year`
+  `emission_record_details`   Stores activity-level calculation details.
+  ----------------------------------------------------------------------------
 
-### 2. `emission_factors`
-Stores emission factors corresponding to standards.
-- `id` (PK)
-- `emission_standard_id` (FK)
-- `scope` (1, 2, or 3)
-- `category_name` (e.g., "Diesel", "Purchased Electricity")
-- `unit` (e.g., "Liters", "kWh")
-- `factor` (Decimal value of kgCO₂e per unit)
-- `reference_source`
+### Entity Relationship
 
-### 3. `emission_records`
-Stores the summary of calculations for reporting periods.
-- `id` (PK)
-- `reporting_period` (e.g., "January 2024")
-- `emission_standard_id` (FK)
-- `scope1_total`, `scope2_total`, `scope3_total` (in kgCO₂e)
-- `total_emission` (in kgCO₂e)
+``` text
+Emission Standards
+      │
+      ├──────────────┐
+      ▼              ▼
+Emission Factors  Emission Records
+                         │
+                         ▼
+             Emission Record Details
+```
 
-### 4. `emission_record_details`
-Stores granular category-level inputs and calculations.
-- `id` (PK)
-- `emission_record_id` (FK, cascades on delete)
-- `scope`, `category_name`, `activity_value`, `unit`, `emission_factor`, `emission_result`
+------------------------------------------------------------------------
 
----
+## Dataset
 
-## 💡 Development Methodology (AI-Assisted Collaboration)
+The project uses a hybrid dataset.
 
-This codebase was engineered utilizing modern **AI-assisted rapid prototyping methods (often referred to as "Vibe Coding")**. Under the direct architectural steering of the main developer, advanced AI orchestration was utilized to accelerate the coding process.
+-   **Original Data**: Annual emission totals (FY20--FY24) derived from
+    Microsoft's Environmental Sustainability Report.
+-   **Synthetic Data**: Monthly records, activity values, and
+    category-level emission data generated through documented synthetic
+    data generation methods because detailed operational records are not
+    publicly available.
 
-This methodology demonstrates the potential of developer-AI synergy:
-- **Velocity:** Core features, seeders, and services were written, tested, and updated iteratively in a fraction of typical development cycles.
-- **Architectural Quality:** Maintained strict MVC principles, isolated business logic in a dedicated service layer (`EmissionCalculationService`), and implemented clean database relationships with full transactional safety.
-- **Data Engineering:** Enabled automated generation of realistic, noise-injected historical data to prepare the system for immediate Tableau deployment.
+All assumptions used during synthetic data generation are documented
+separately to maintain transparency.
 
----
+------------------------------------------------------------------------
 
-## 🚀 Installation & Setup
+## Project Structure
 
-Follow these steps to set up the project locally:
+``` text
+app/
+ ├── Http/
+ ├── Models/
+ ├── Services/
+database/
+ ├── migrations/
+ ├── seeders/
+resources/
+ ├── views/
+routes/
+public/
+```
 
-### Prerequisites
-- PHP >= 8.2
-- Composer
-- Node.js & NPM
-- MySQL Server
+------------------------------------------------------------------------
 
-### 1. Clone the Project
-```bash
+## AI-Assisted Development
+
+This project was developed using an **AI-assisted software development
+workflow**.
+
+AI tools were used to accelerate implementation, debugging,
+documentation, and iterative development. The overall architecture,
+database design, business rules, calculation logic, and engineering
+decisions remained under developer supervision throughout the project.
+
+------------------------------------------------------------------------
+
+## Installation
+
+### Requirements
+
+-   PHP 8.2+
+-   Composer
+-   Node.js & npm
+-   MySQL
+
+### Setup
+
+``` bash
 git clone https://github.com/BagusAbdulWahhab/koica-silla-university.git
 cd koica-silla-university/CarbonManagement
-```
-*(Or navigate to your local workspace if already cloned.)*
 
-### 2. Install Dependencies
-```bash
 composer install
 npm install
-```
 
-### 3. Environment Configuration
-Copy the environment template and set up your database connection:
-```bash
 cp .env.example .env
-```
-Open `.env` and configure your database parameters:
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=jejakkarbonmu_db
-DB_USERNAME=root
-DB_PASSWORD=
-```
 
-### 4. Key Generation & Database Migration
-Run the artisan commands to generate your app key and set up your database:
-```bash
 php artisan key:generate
 php artisan migrate
-```
 
-### 5. Seed Database Factors & Demo Data
-Seed the tables with required emission factors and 12-month historical data for Tableau:
-```bash
-# Seed standards and factors
 php artisan db:seed --class=EmissionFactorSeeder
-
-# Seed Tableau-ready historical demo records
 php artisan db:seed --class=EmissionRecordSeeder
-```
 
-### 6. Build Assets and Start Servers
-Compile assets and run the local development server:
-```bash
-# Build frontend assets
 npm run build
-
-# Start the Laravel server
 php artisan serve
 ```
-Access the application at `http://127.0.0.1:8000`.
 
----
+------------------------------------------------------------------------
 
-## 📈 Tableau Dashboard Integration
+## Tableau Integration
 
-Tableau should be connected directly to your MySQL instance running the `jejakkarbonmu_db` database. 
+Connect Tableau directly to the project's MySQL database to build
+dashboards such as:
 
-### Suggested Visualizations
-- **KPI Summary Cards:** Total Carbon Footprint (tCO₂e), YTD Emissions, Average monthly emissions.
-- **Monthly Trend Chart:** Line graph showing `total_emission` across the `reporting_period` fields. Use this to highlight the **July 2024 anomaly spike**.
-- **Scope Allocation:** Donut or Pie chart showing breakdown percentage of Scope 1, Scope 2, and Scope 3.
-- **Category Pareto Chart:** Column chart sorting `category_name` by `emission_result` to highlight top polluters.
+-   Total Emission KPI
+-   Monthly Emission Trend
+-   Scope Comparison
+-   Category Contribution
+-   Top Emission Sources
+-   Historical Emission Analysis
+
+------------------------------------------------------------------------
+
+## Future Improvements
+
+-   Authentication and authorization
+-   Multi-organization support
+-   Carbon reduction target monitoring
+-   PDF & Excel export
+-   REST API
+-   Additional emission standards
+
+------------------------------------------------------------------------
+
+## References
+
+-   GHG Protocol Corporate Accounting and Reporting Standard
+-   IPCC Guidelines for National Greenhouse Gas Inventories
+-   Microsoft Environmental Sustainability Report (FY20--FY24)
+-   Tableau Documentation
+
+------------------------------------------------------------------------
+
+## License
+
+Developed for academic purposes as part of the **KOICA -- Silla
+University Digital Carbon Management Program**.
